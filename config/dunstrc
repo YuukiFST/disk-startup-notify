@@ -1,0 +1,48 @@
+[global]
+    monitor = 0
+    follow = keyboard
+    origin = top-right
+    offset = 10x50
+    width = 380
+    height = 200
+    padding = 12
+    horizontal_padding = 12
+    frame_width = 1
+    frame_color = "#3d3d3d"
+    separator_color = frame
+    sort = yes
+    idle_threshold = 0
+    font = Terminess Nerd Font 10
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    show_age_threshold = 60
+    word_wrap = yes
+    ignore_idle_displayer = yes
+    sticky_history = yes
+    history_length = 20
+    dmenu = /run/current-system/sw/bin/rofi -dmenu -p dunst:
+    browser = /run/current-system/sw/bin/thorium
+    always_resume = yes
+    corner_radius = 6
+    force_invalid_utf8 = yes
+
+    mouse_left_click = close_current
+    mouse_middle_click = do_action
+    mouse_right_click = close_all
+
+[urgency_low]
+    background = "#1e1e1e"
+    foreground = "#d4d4d4"
+    timeout = 10
+
+[urgency_normal]
+    background = "#1e1e1e"
+    foreground = "#d4d4d4"
+    timeout = 10
+
+[urgency_critical]
+    background = "#3a1f1f"
+    foreground = "#ffcccc"
+    frame_color = "#cc4444"
+    timeout = 0
