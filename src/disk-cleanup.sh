@@ -3,6 +3,10 @@ set -euo pipefail
 APP_ID="disk-startup-notify"
 MOUNT="${DISK_CLEANUP_MOUNT:-/}"
 DISK_CLEANUP_ROOT="${DISK_CLEANUP_ROOT:-disk-cleanup-root}"
+SUDO="${SUDO:-/run/wrappers/bin/sudo}"
+if [ ! -x "$SUDO" ]; then
+  SUDO="sudo"
+fi
 LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/disk-cleanup.lock"
 PROGRESS_ID=87421
 STEP_TIMEOUT_MS=5000
@@ -172,7 +176,7 @@ run_root_cleanup() {
   notify_progress "Cleaning: system" \
     "Removing unused Nix store paths, optimising store, and vacuuming logs older than 7 days..."
 
-  if sudo -n "$DISK_CLEANUP_ROOT" 2>/dev/null; then
+  if "$SUDO" -n "$DISK_CLEANUP_ROOT" 2>/dev/null; then
     after_free="$(df -BG "$MOUNT" | awk 'NR==2 { gsub(/G/, "", $4); print $4 }')"
     freed_gb=$((after_free - before_free))
 

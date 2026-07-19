@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (pkgs) writeShellApplication coreutils findutils nix systemd libnotify dunst sudo rofi gawk;
+  inherit (pkgs) writeShellApplication coreutils findutils nix systemd libnotify dunst rofi gawk;
 
   diskCleanupRoot = writeShellApplication {
     name = "disk-cleanup-root";
@@ -27,7 +27,6 @@ let
       gawk
       libnotify
       dunst
-      sudo
       diskCleanupRoot
     ];
     text =
