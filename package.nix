@@ -7,23 +7,38 @@
 }:
 
 let
-  inherit (pkgs) writeShellApplication coreutils findutils nix systemd libnotify dunst sudo polkit rofi nodejs python3;
+  inherit (pkgs) writeShellApplication coreutils findutils nix systemd libnotify dunst sudo rofi gawk;
+
+  diskCleanupRoot = writeShellApplication {
+    name = "disk-cleanup-root";
+    runtimeInputs = [
+      coreutils
+      nix
+      systemd
+    ];
+    text = builtins.readFile ./src/disk-cleanup-root.sh;
+  };
 
   diskCleanup = writeShellApplication {
     name = "disk-cleanup";
     runtimeInputs = [
       coreutils
       findutils
-      nix
-      systemd
+      gawk
       libnotify
       dunst
       sudo
-      polkit
-      nodejs
-      python3
+      diskCleanupRoot
     ];
-    text = builtins.readFile ./src/disk-cleanup.sh;
+    text =
+      let
+        base = builtins.readFile ./src/disk-cleanup.sh;
+      in
+      ''
+        export DISK_CLEANUP_MOUNT="${mountPoint}"
+        export DISK_CLEANUP_ROOT="${diskCleanupRoot}/bin/disk-cleanup-root"
+        ${base}
+      '';
   };
 
   notifyText =
@@ -52,4 +67,6 @@ let
     text = notifyText;
   };
 in
-diskStartupNotify
+{
+  inherit diskCleanupRoot diskCleanup diskStartupNotify;
+}

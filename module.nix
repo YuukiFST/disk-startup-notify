@@ -7,6 +7,12 @@
 
 let
   cfg = config.services.disk-startup-notify;
+
+  diskStartupNotifyPkg = pkgs.callPackage ./package.nix {
+    lowSpaceThresholdGb = cfg.lowSpaceThresholdGb;
+    mountPoint = cfg.mountPoint;
+    dunstWaitSeconds = cfg.dunstWaitSeconds;
+  };
 in
 {
   options.services.disk-startup-notify = {
@@ -40,11 +46,7 @@ in
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [
       pkgs.dunst
-      (pkgs.callPackage ./package.nix {
-        lowSpaceThresholdGb = cfg.lowSpaceThresholdGb;
-        mountPoint = cfg.mountPoint;
-        dunstWaitSeconds = cfg.dunstWaitSeconds;
-      })
+      diskStartupNotifyPkg.diskStartupNotify
     ];
 
     environment.etc."xdg/dunst/dunstrc".source = ./config/dunstrc;
@@ -54,16 +56,11 @@ in
         users = [ cfg.cleanupUser ];
         commands = [
           {
-            command = "${pkgs.nix}/bin/nix-collect-garbage -d";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "${pkgs.systemd}/bin/journalctl --vacuum-time=7d";
-            options = [ "NOPASSWD" ];
-          }
-          {
-            command = "${pkgs.nix}/bin/nix-store --optimise";
-            options = [ "NOPASSWD" ];
+            command = "${diskStartupNotifyPkg.diskCleanupRoot}/bin/disk-cleanup-root";
+            options = [
+              "NOPASSWD"
+              "SETENV"
+            ];
           }
         ];
       }

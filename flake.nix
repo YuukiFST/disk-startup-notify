@@ -15,13 +15,17 @@
     {
       nixosModules.default = import ./module.nix;
 
-      packages.${system} = {
-        default = pkgs.callPackage ./package.nix { };
-        disk-startup-notify = pkgs.callPackage ./package.nix { };
-      };
+      packages.${system} =
+        let
+          pkg = pkgs.callPackage ./package.nix { };
+        in
+        {
+          inherit (pkg) diskCleanupRoot diskCleanup diskStartupNotify;
+          default = pkg.diskStartupNotify;
+        };
 
       overlays.default = final: prev: {
-        disk-startup-notify = prev.callPackage ./package.nix { };
+        disk-startup-notify = (prev.callPackage ./package.nix { }).diskStartupNotify;
       };
     };
 }
